@@ -13,5 +13,5 @@
 | scikit-optimize | 0.9.0     |
 | xgboost         | 1.4.2     |
 | shap            | 0.41.0    |
-               
+| PubChemPy       | 1.0.4     |          
           
