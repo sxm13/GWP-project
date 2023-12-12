@@ -8,5 +8,5 @@
   Guobin Zhao: sxmzhaogb@gmai.com            
   Kim, Haewon: haewon0673@naver.com                          
                  
-trainer: codes, notebook, dataset, models used for machine learning training
-predicter: codes, notebook, example dataset, models used for predicting
+:star: trainer: codes, notebook, dataset, models used for machine learning training                                
+:star: predicter: codes, notebook, example dataset, models used for predicting
