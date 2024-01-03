@@ -9,4 +9,4 @@
   Kim, Haewon: haewon0673@naver.com (make figure,DFT)                         
                  
 :star: trainer: codes, notebook, dataset, models used for machine learning training                                
-:star: predicter: codes, notebook, example dataset, models used for predicting
+:star: predicter: codes, notebook, example dataset, models used for predicting 
