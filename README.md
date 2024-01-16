@@ -10,3 +10,5 @@
                  
 :star: trainer: codes, notebook, dataset, models used for machine learning training                                
 :star: predicter: codes, notebook, example dataset, models used for predicting 
+:star: pre-trainer: codes, notebook, dataset for pretarin and get top 10 features from 214 features (211 from RDKit,3 from DFT)
+:star: final-predicter: codes, notebook, example dataset, models used for predicting  using final best models.
