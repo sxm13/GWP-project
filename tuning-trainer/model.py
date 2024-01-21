@@ -19,6 +19,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.inspection import permutation_importance
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.model_selection import KFold
+from sklearn.model_selection import learning_curve 
 
 np.int = int
 warnings.filterwarnings("ignore", category=FutureWarning, module='xgboost')
@@ -443,10 +444,6 @@ def mlp(Xtrain, Ytrain, Xtest, Ytest, tar, n_job, call, save = True):
     Ytrain = Ytrain.values.ravel()
     Ytest = Ytest.values.ravel()
 
-    fold_train_losses = []
-    fold_val_losses = []
-    loss_history_each = []
-
     reg = MLPRegressor(random_state=1129) 
     space = [Categorical(['sgd','adam', 'lbfgs'], name='solver')]
     @use_named_args(space)
@@ -474,19 +471,11 @@ def mlp(Xtrain, Ytrain, Xtest, Ytest, tar, n_job, call, save = True):
         # print("Best score=%.4f" % res_gp.fun)
         reg_opt = MLPRegressor(hidden_layer_sizes=(res_gp.x[0],), activation=res_gp.x[1], solver = "sgd", alpha=res_gp.x[2], learning_rate = "constant",
                             learning_rate_init = res_gp.x[3], max_iter = res_gp.x[4], warm_start=res_gp.x[5], momentum=res_gp.x[6],random_state=66)
-        # reg_opt.fit(Xtrain, Ytrain)
+        reg_opt.fit(Xtrain, Ytrain)
         
-        for train_idx, val_idx in KFold(n_splits=5).split(Xtrain):
-            Xtrain_fold, Xval_fold = Xtrain.iloc[train_idx], Xtrain.iloc[val_idx]
-            Ytrain_fold, Yval_fold = Ytrain[train_idx], Ytrain[val_idx]
-            reg_opt.fit(Xtrain_fold, Ytrain_fold)
-            train_loss = mean_squared_error(Ytrain_fold, reg_opt.predict(Xtrain_fold))
-            val_loss = mean_squared_error(Yval_fold, reg_opt.predict(Xval_fold))
-            fold_train_losses.append(train_loss)
-            fold_val_losses.append(val_loss)
-            loss_history = reg_opt.loss_curve_
-            loss_history_each.append(loss_history)
-
+        train_sizes, train_scores, validation_scores = learning_curve(estimator=reg_opt,X=Xtrain,y=Ytrain,train_sizes=np.linspace(0.1, 1.0, 5),
+                                                                        cv=5,scoring='neg_mean_squared_error')
+        
         r2_train = r2_score(Ytrain, reg_opt.predict(Xtrain))
         r2_test = r2_score(Ytest,reg_opt.predict(Xtest))
         mae_train = mean_absolute_error(Ytrain,reg_opt.predict(Xtrain))
@@ -515,20 +504,9 @@ def mlp(Xtrain, Ytrain, Xtest, Ytest, tar, n_job, call, save = True):
         # print("Best score=%.4f" % res_gp.fun)
         reg_opt = MLPRegressor(hidden_layer_sizes=(res_gp.x[0],), activation=res_gp.x[1], solver = "adam", alpha=res_gp.x[2],learning_rate_init=res_gp.x[3],
                                 max_iter = res_gp.x[4], warm_start=res_gp.x[5],beta_1=res_gp.x[6],beta_2=res_gp.x[7], epsilon=res_gp.x[8],random_state=88)
-        # reg_opt.fit(Xtrain, Ytrain)
-        fold_train_losses = []
-        fold_val_losses = []
-
-        for train_idx, val_idx in KFold(n_splits=5).split(Xtrain):
-            Xtrain_fold, Xval_fold = Xtrain.iloc[train_idx], Xtrain.iloc[val_idx]
-            Ytrain_fold, Yval_fold = Ytrain[train_idx], Ytrain[val_idx]
-            reg_opt.fit(Xtrain_fold, Ytrain_fold)
-            train_loss = mean_squared_error(Ytrain_fold, reg_opt.predict(Xtrain_fold))
-            val_loss = mean_squared_error(Yval_fold, reg_opt.predict(Xval_fold))
-            fold_train_losses.append(train_loss)
-            fold_val_losses.append(val_loss)
-            loss_history = reg_opt.loss_curve_
-            loss_history_each.append(loss_history)
+        reg_opt.fit(Xtrain, Ytrain)
+        train_sizes, train_scores, validation_scores = learning_curve(estimator=reg_opt,X=Xtrain,y=Ytrain,train_sizes=np.linspace(0.1, 1.0, 5),
+                                                                        cv=5,scoring='neg_mean_squared_error')
 
         r2_train = r2_score(Ytrain, reg_opt.predict(Xtrain))
         r2_test = r2_score(Ytest,reg_opt.predict(Xtest))
@@ -553,21 +531,10 @@ def mlp(Xtrain, Ytrain, Xtest, Ytest, tar, n_job, call, save = True):
         # print("Best parameters:")
         # print("- hidden_layer_sizes=%d" % res_gp.x[0])
         reg_opt = MLPRegressor(hidden_layer_sizes=(res_gp.x[0],), max_iter=500, activation=res_gp.x[1], solver = "lbfgs",alpha=res_gp.x[2],random_state=44)
-        # reg_opt.fit(Xtrain, Ytrain)
-        fold_train_losses = []
-        fold_val_losses = []
+        reg_opt.fit(Xtrain, Ytrain)
 
-        for train_idx, val_idx in KFold(n_splits=5).split(Xtrain):
-            Xtrain_fold, Xval_fold = Xtrain.iloc[train_idx], Xtrain.iloc[val_idx]
-            Ytrain_fold, Yval_fold = Ytrain[train_idx], Ytrain[val_idx]
-            reg_opt.fit(Xtrain_fold, Ytrain_fold)
-            train_loss = mean_squared_error(Ytrain_fold, reg_opt.predict(Xtrain_fold))
-            val_loss = mean_squared_error(Yval_fold, reg_opt.predict(Xval_fold))
-            fold_train_losses.append(train_loss)
-            fold_val_losses.append(val_loss)
-            loss_history = reg_opt.loss_curve_
-            loss_history_each.append(loss_history)
-
+        train_sizes, train_scores, validation_scores = learning_curve(estimator=reg_opt,X=Xtrain,y=Ytrain,train_sizes=np.linspace(0.1, 1.0, 5),
+                                                                        cv=5,scoring='neg_mean_squared_error')
         r2_train = r2_score(Ytrain, reg_opt.predict(Xtrain))
         r2_test = r2_score(Ytest,reg_opt.predict(Xtest))
         mae_train = mean_absolute_error(Ytrain,reg_opt.predict(Xtrain))
@@ -599,20 +566,49 @@ def mlp(Xtrain, Ytrain, Xtest, Ytest, tar, n_job, call, save = True):
                             'rmse_train': [rmse_train],
                             'rmse_test': [rmse_test]})
         score.to_excel(result, index=False, sheet_name = "score")
-        loss = pd.DataFrame({"fold_train_losses": pd.Series(fold_train_losses),
-                            "fold_val_losses": pd.Series(fold_val_losses)})
-        loss.to_excel(result, index=False, sheet_name = "loss")
-        df_loss_his = pd.DataFrame(np.array(loss_history_each).T,columns = ["fold0","fold1","fold2","fold3","fold4"])
-        df_loss_his.to_excel(result, index=False, sheet_name = "loss_his")
         result.close()
 
-        import matplotlib.pyplot as plt
-        x = np.linspace(0,len(fold_train_losses),len(fold_train_losses))
-        plt.figure(figsize=(10, 5))
-        plt.plot(x,fold_train_losses, label='Train Loss')
-        plt.plot(x,fold_val_losses, label='Validation Loss')
-        plt.xlabel('* Fold')
-        plt.ylabel('Loss')
-        plt.title('Training and Validation Loss Curve')
-        plt.legend()
-        plt.show()
+        return train_sizes, train_scores, validation_scores
+    
+def mlp_pre(Xtrain, Ytrain, Xtest, Ytest, tar, model, save = True):
+    warnings.filterwarnings('ignore', category=ConvergenceWarning)
+    Ytrain = Ytrain.values.ravel()
+    Ytest = Ytest.values.ravel()
+
+    reg_opt = joblib.load(model)
+    train_sizes, train_scores, validation_scores = learning_curve(estimator=reg_opt,X=Xtrain,y=Ytrain,train_sizes=np.linspace(0.1, 1.0, 5),
+                                                                    cv=5,scoring='neg_mean_squared_error')
+    r2_train = r2_score(Ytrain, reg_opt.predict(Xtrain))
+    r2_test = r2_score(Ytest,reg_opt.predict(Xtest))
+    mae_train = mean_absolute_error(Ytrain,reg_opt.predict(Xtrain))
+    mae_test = mean_absolute_error(Ytest,reg_opt.predict(Xtest))
+    rmse_train = mean_squared_error(Ytrain,reg_opt.predict(Xtrain),squared=False)
+    rmse_test = mean_squared_error(Ytest,reg_opt.predict(Xtest),squared=False)
+    print("Training: r2,mae,rmse: ", r2_train,mae_train,rmse_train)
+    print("Test: r2,mae,rmse: ", r2_test,mae_test,rmse_test)
+    if save:
+        joblib.dump(reg_opt,"mlp_" + tar + ".pkl")
+        result = pd.ExcelWriter("mlp_"+tar+".xlsx")
+        df_result_train = pd.DataFrame({"Ytrain": Ytrain.reshape(-1),
+                                        'Ytrain_pre': reg_opt.predict(Xtrain).ravel()})
+        df_result_train.to_excel(result, index=False, sheet_name = "data_train")
+        df_result_test = pd.DataFrame({"Ytest": Ytest.reshape(-1),
+                                        'Ytest_pre': reg_opt.predict(Xtest).ravel()})
+        df_result_test.to_excel(result, index=False, sheet_name = "data_test")
+        importances = permutation_importance(reg_opt, Xtest, Ytest, n_repeats=30, random_state=1129)
+        feature_importances = {Xtrain.columns[i]: importances.importances_mean[i] for i in range(len(Xtrain.columns))}
+        feature_importance_df = pd.DataFrame(list(feature_importances.values()), 
+                                            index=list(feature_importances.keys()), 
+                                            columns=['Importance'])
+        feature_importance_df.to_excel(result, sheet_name="importance")
+        print(feature_importance_df)
+        score = pd.DataFrame({"r2_train": [r2_train],
+                            "r2_test": [r2_test],
+                            'mae_train': [mae_train],
+                            'mae_test': [mae_test],
+                            'rmse_train': [rmse_train],
+                            'rmse_test': [rmse_test]})
+        score.to_excel(result, index=False, sheet_name = "score")
+        result.close()
+
+    return train_sizes, train_scores, validation_scores
