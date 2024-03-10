@@ -6,7 +6,7 @@
   Guobin Zhao: sxmzhaogb@gmail.com (machine learning)           
   Kim, Haewon: haewon0673@naver.com (make figure,machine learning, DFT)                     
 * cite as: G. Zhao, H. Kim, C. Ynag, Y. G. Chung. Leveraging Machine Learning to Predict the Atmospheric Lifetime and the Global Warming Potential (GWP) of SF6 Replacement Gases. DOI: 10.1021/acs.jpca.3c07339
-* 
+
 ### Machine learning                          
 :star: trainer: codes, notebook, dataset, models used for machine learning training                                             
 :star: predicter: codes, notebook, example dataset, models used for predicting                                              
